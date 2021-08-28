@@ -162,7 +162,7 @@ PLATFORMS
   x86_64-darwin-20
 
 DEPENDENCIES
-  evernote_oauth
+  evernote_oauth (~> 0.2.3)
   nokogiri
   puma (~> 5.4)
   rails (~> 6.1, >= 6.1.4.1)
