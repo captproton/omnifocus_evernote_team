@@ -106,15 +106,6 @@ class ProjectAction < Thor
         puts @project
     end
 
-    desc '_set_omnifocus_inetloc_app_url', 'collect and set app link for omnifocus app'
-    def _set_omnifocus_inetloc_app_url(app)
-        file_path = "#{folder_path}note.inetloc"
-        file_content = _new_inetloc_xml(app_url)
-
-        File.write(file_path, file_content.to_xml)
-        file_path
-    end
-
 # ====================
     private
 
@@ -204,6 +195,15 @@ class ProjectAction < Thor
         File.write(file_path, file_content.to_xml)
         file_path
     end
+
+    def _set_omnifocus_inetloc_app_url(app)
+        file_path = "#{folder_path}note.inetloc"
+        file_content = _new_inetloc_xml(app_url)
+
+        File.write(file_path, file_content.to_xml)
+        file_path
+    end
+
 
 
 
