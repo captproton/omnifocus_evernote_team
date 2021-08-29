@@ -1,4 +1,5 @@
 # gems and stdlib
+require 'cgi'
 require 'fileutils'
 require 'nokogiri'
 require 'rubygems'

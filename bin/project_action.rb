@@ -25,8 +25,8 @@ class ProjectAction < Thor
     end
 
     desc 'initialize_omnifocus_project', 'takes the project title and sets it in the OF pop-up'
-    def initialize_omnifocus_project(project_title)
-        omnifocus_url = _generate_omnifocus_url(project_title)
+    def initialize_omnifocus_project(project_title, omnifocus_link)
+        omnifocus_url = _generate_omnifocus_url(project_title, omnifocus_link)
         puts omnifocus_url
         #  omnifocus:///add?project=chores&name=Pick%20up%20milk&note=You%20gotta
         # open omnifocus link
@@ -64,32 +64,50 @@ class ProjectAction < Thor
          _create_readme_file(folder_path, project_title)
     end
     
-    desc 'generate', 'generate project folder and contents'
+    desc 'generate', 'wizard for generating '
     def generate(name)
-        apps = %w[evernote omnifocus]
-        project_title = _create_project_title(name)
-        ## steps 
-            # gather input
-            # perform work -- 
-                # * create project folder and link files
-                # * record work in a YAML entry
-            # Deliver Results
-                # return YAML record in a way that can be grepped and cut
-            # handle failure
+        # initiate project hash
+        data = _create_project_title(name)
 
-        puts "generating project `#{project_title}`"
+        # prompt user to create a note
+        say(set_color "--==", :green, :on_black, :bold)
+        say(set_color "Make a note in evernote with this title:", :cyan, :on_black, :bold)
+        say(set_color "#{data[:formatted_title]}", :magenta, :on_black)
 
-        # create folder & initiate @project_folder
-        folder_path = _create_project_folder(project_title)
-        puts "generating folder `#{folder_path}`"
+        # get app link for evernote note & add to data
+        evernote_link = ask("What is the evernote app link for the new note (Ctrl ⌥ ⌘ C)?")
+        puts "#{evernote_link}"
+        data[:evernote_link] = evernote_link
 
-        # generate files for project folder
-        apps.each do |app|
-            app_url = "omnifocus:///task/bEGFarO1njv"
-            link_file = _create_inetloc_file(folder_path, app_url)
-            puts "generating file `#{link_file}`"            
-        end
+        # create project's source folder
+        source_directory_path = data[:source_directory_path]
+        folder = FileUtils.mkdir_p(source_directory_path)
+        say(set_color "…created source folder: `#{data[:source_directory_path]}`", :green, :on_black, :bold)
 
+        # add README
+        file_path = "#{source_directory_path}/readme.md"
+        file_content = "readme for #{data[:formatted_title]}"
+        File.write(file_path, file_content)
+        say(set_color "…created README in source folder: `#{file_path}`", :green, :on_black, :bold) 
+
+        # prompt user to create task with an Omnifocus add link
+        omnifocus_add_link = _generate_omnifocus_url(data[:formatted_title], data[:evernote_link])
+                say(set_color "Click on this link:", :green, :on_black, :bold)
+        say(set_color "#{omnifocus_add_link}", :magenta)
+
+        # # prompt user
+        omnifocus_link = ask("What is the link for the omnifocus project (right click on project and 'copy as link')?")
+        data[:omnifocus_link] = omnifocus_link
+
+        # add links to omnifocus project and note to source directory
+        
+        say(set_color "…adding link project link and notes link file to project source folder", :green, :on_black, :bold)
+        omnifocus_link_file = LinkFile.new.add_interloc_file_to_project_directory(data[:source_directory_path], "omnifocus", data[:omnifocus_link])
+        evernote_link_file = LinkFile.new.add_interloc_file_to_project_directory(data[:source_directory_path], "evernote", data[:evernote_link])
+        say(set_color "Here's their folder", :green, :on_black, :bold)
+        say(set_color "#{data[:source_directory_path]}", :magenta, :on_black)
+
+        puts data
     end
 
     desc '_set_base_path', 'set project base path with username'
@@ -110,22 +128,27 @@ class ProjectAction < Thor
     end
 
     desc '_generate_omnifocus_url', 'pieces together omnifocus add url'
-    def _generate_omnifocus_url(project_title, project_folder_url="~/Documents/projects/")
-        url = "omnifocus:///add?project=#{project_title}&name=default%20task&note=#{project_folder_url}"
+    def _generate_omnifocus_url(project_title, evernote_link)
+        data = Project.new.generate_data_from_title(project_title)
+        url_encoded_project_title = data[:url_encoded_project_title]
+        project_folder_uri = data[:file_uri]
+
+        notes   = "source: #{project_folder_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
+        url     = "omnifocus:///add?project=#{url_encoded_project_title}&name=default%20task&note=#{notes}"
     end
 
     desc '_create_project_folder', 'create project folder with a safe name'
     def _create_project_folder(formal_project_title)
-        clean_folder_name = _sanitize(formal_project_title)
-        project_base_path = _set_base_path
-        @project_folder = FileUtils.mkdir_p("#{project_base_path}#{clean_folder_name}")
+        source_directory_path = Project.new.generate_data_from_title(formal_project_title)[:source_directory_path]
+        @project_folder = FileUtils.mkdir_p(source_directory_path)
         # @project_folder.first.to_s + "/"
     end
 
     desc '_create_project_title', 'create project title'
     def _create_project_title(name)
-        date_string = Time.new.strftime("%Y-%m-%d")
-        project_title = "#{date_string}||#{name}"
+        Project.new.generate_data_from_title(name)
+        # date_string = Time.new.strftime("%Y-%m-%d")
+        # project_title = "#{date_string}||#{name}"
     end
 
     desc '_set_evernote_inetloc_app_url', 'collect and set app link for evernote app'

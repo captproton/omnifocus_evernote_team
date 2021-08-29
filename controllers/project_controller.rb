@@ -8,8 +8,8 @@ class ProjectController
         @project = Project.new.find_by_title()
     end
 
-    def create(title, params={})
-        @project = Project.new(title: title)
+    def create(params={})
+        @project = Project.new
         params.each { |k,v| @project.public_send("#{k}=", v) }
         @project.save
     end
