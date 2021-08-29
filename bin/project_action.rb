@@ -123,13 +123,6 @@ class ProjectAction < Thor
         folder_or_file_name.gsub(/[^0-9A-Z]/i, '_')
     end
 
-    desc '_create_project_folder', 'create project folder with a safe name'
-    def _create_project_folder(formal_project_title)
-        source_directory_path = Project.new.generate_data_from_title(formal_project_title)[:source_directory_path]
-        @project_folder = FileUtils.mkdir_p(source_directory_path)
-        # @project_folder.first.to_s + "/"
-    end
-
     desc '_create_project_title', 'create project title'
     def _create_project_title(name)
         @project = ProjectController.new.create(params={title: name})
