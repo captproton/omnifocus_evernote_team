@@ -67,10 +67,10 @@ class ProjectAction < Thor
     desc 'generate', 'wizard for generating '
     def generate(name)
         # initiate project hash
+        say(set_color "…generating meta data based on project name", :green, :on_black, :bold)
         @project = _create_project_title(name)
 
         # prompt user to create a note
-        say(set_color "--==", :green, :on_black, :bold)
         say(set_color "Make a note in evernote with this title:", :cyan, :on_black, :bold)
         say(set_color "#{@project.formatted_title}", :magenta, :on_black)
 
@@ -212,6 +212,15 @@ class ProjectAction < Thor
     #   </dict>
     # </plist>
     end
+# ====================
+    private
+
+    def _create_project_title(name)
+        @project = ProjectController.new.create(params={title: name})
+        # Project.new.generate_data_from_title(name)
+    end
+
+
 end
 
 ProjectAction.start(ARGV)
