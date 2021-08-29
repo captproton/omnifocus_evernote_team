@@ -11,6 +11,9 @@ class ProjectController
     def create(params={})
         @project = Project.new
         params.each { |k,v| @project.public_send("#{k}=", v) }
+        data = @project.generate_data_from_title(params[:title])
+        # update attributes in data hash
+        data.each { |k,v| @project.public_send("#{k}=", v) }
         @project.save
     end
 

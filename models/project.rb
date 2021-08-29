@@ -1,12 +1,14 @@
 class Project
-    attr_writer :title
-    attr_writer :formatted_title
-    attr_writer :url_encoded_project_title
-    attr_writer :source_directory_path
-    attr_writer :file_uri
-    attr_writer :evernote_link
-    attr_writer :omnifocus_link
-    attr_writer :params
+    attr_accessor(
+                    :title, 
+                    :formatted_title, 
+                    :url_encoded_project_title, 
+                    :source_directory_path, 
+                    :file_uri, 
+                    :evernote_link, 
+                    :omnifocus_link, 
+                    :params
+    )
 
     # {:title=>"get back", :formatted_title=>"2021-08-29||get back", :url_encoded_project_title=>"get%20back", :source_directory_path=>"/Users/carltanner/Documents/projects/2021_08_29__get_back/", :file_uri=>"file:///Users/carltanner/Documents/projects/2021_08_29__get_back/", :evernote_link=>"evernote:///view/3203701/s29/b7c3394c-fc9a-47f1-56e0-ff71c29f57b1/a63a6bf3-a81a-43c1-9b58-0298097c0691", :omnifocus_link=>"omnifocus:///task/oU4kh8gWfeX"}
     def initialize(title:"",
