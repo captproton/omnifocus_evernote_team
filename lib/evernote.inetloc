@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>URL</key>
+	<!-- note link format <string>https://[service]/shard/[shardId]/nl/[userId]/[noteGuid]/</string> -->
+	<!-- app-link format  <string>evernote:///view/[userId]/[shardId]/[noteGuid]/[noteGuid]/</string> -->
+	<string>evernote:///view/3203701/s29/6c4835e4-6178-48ad-8ccc-46e80661671a/6c4835e4-6178-48ad-8ccc-46e80661671a</string>
+</dict>
+</plist>

@@ -1,0 +1,11 @@
+---
+# authorizations   
+ auth-keys:
+   evernote:
+     key: [maybe_your_evernote_user_name]
+     secret: [evernote_secret]
+     application_name: [evernote_app_name]   
+
+# Default values
+ project_base_url: '~/Documents/projects/' 
+ user_name: [your_system_user_name] # string in path after /Users/
