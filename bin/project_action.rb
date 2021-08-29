@@ -61,7 +61,7 @@ class ProjectAction < Thor
          _create_readme_file(folder_path, project_title)
     end
     
-    desc 'generate', 'wizard for generating '
+    desc 'generate [project_title]', 'USE THIS: Wizard for generating a project in OmniFocus with notes in Evernote and source code in the projects folder.'
     def generate(name)
         # initiate project hash
         say(set_color "…generating meta data based on project name", :green, :on_black, :bold)
