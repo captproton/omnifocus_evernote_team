@@ -92,15 +92,9 @@ class ProjectAction < Thor
 
     end
 
-    desc '_set_user_name', 'set computer username'
-    def _set_user_name
-        user_name = 'carltanner'
-    end
-
     desc '_set_base_path', 'set project base path with username'
     def _set_base_path
-        user_name = _set_user_name
-        project_base_path = "/Users/#{user_name}/Documents/projects/"
+        project_base_path = "#{ENV['HOME']}/Documents/projects/"
     end
 
     desc '_set_base_url', 'set project base url with username'
