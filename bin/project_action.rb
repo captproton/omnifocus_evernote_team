@@ -28,9 +28,6 @@ class ProjectAction < Thor
     def initialize_omnifocus_project(project_title, omnifocus_link)
         omnifocus_url = _generate_omnifocus_url(project_title, omnifocus_link)
         puts omnifocus_url
-        #  omnifocus:///add?project=chores&name=Pick%20up%20milk&note=You%20gotta
-        # open omnifocus link
-        # _open_link(omnifocus_url)
     end
     
     desc 'initialize_project_directory', 'creates a project folder based on the formatted title'
@@ -157,16 +154,6 @@ class ProjectAction < Thor
         file_path
     end
 
-    desc '_create_inetloc_file', 'create project linking file'
-    def _create_inetloc_file(folder_path, app_name, app_url)
-        file_path = "#{folder_path}#{app_name}.inetloc"
-        file_content = _new_inetloc_xml(app_url)
-
-        File.write(file_path, file_content.to_xml)
-        puts file_path
-        file_path
-    end
-
     desc '_create_readme_file', 'create default readme.md file'
     def _create_readme_file(folder_path, project_title)
         file_path = "#{folder_path}readme.md"
@@ -218,6 +205,23 @@ class ProjectAction < Thor
         notes   = "source: #{project_folder_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
         url     = "omnifocus:///add?project=#{url_encoded_project_title}&name=default%20task&note=#{notes}"
     end
+
+    def _create_project_folder(formal_project_title)
+        source_directory_path = Project.new.generate_data_from_title(formal_project_title)[:source_directory_path]
+        @project_folder = FileUtils.mkdir_p(source_directory_path)
+        # @project_folder.first.to_s + "/"
+    end
+
+    def _create_inetloc_file(folder_path, app_name, app_url)
+        file_path = "#{folder_path}#{app_name}.inetloc"
+        file_content = _new_inetloc_xml(app_url)
+
+        File.write(file_path, file_content.to_xml)
+        puts file_path
+        file_path
+    end
+
+
 
 
 
