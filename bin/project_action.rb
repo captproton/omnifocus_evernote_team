@@ -141,16 +141,6 @@ class ProjectAction < Thor
         file_path
     end
 
-    desc '_create_readme_file', 'create default readme.md file'
-    def _create_readme_file(folder_path, project_title)
-        file_path = "#{folder_path}readme.md"
-        file_content = "readme for #{project_title}"
-
-        File.write(file_path, file_content)
-        puts file_path
-        file_path
-    end
-
     desc '_new_inetloc_xml', 'create inetlocl xml'
     def _new_inetloc_xml(app_url)
         content = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
@@ -204,6 +194,15 @@ class ProjectAction < Thor
         file_content = _new_inetloc_xml(app_url)
 
         File.write(file_path, file_content.to_xml)
+        puts file_path
+        file_path
+    end
+
+    def _create_readme_file(folder_path, project_title)
+        file_path = "#{folder_path}readme.md"
+        file_content = "readme for #{project_title}"
+
+        File.write(file_path, file_content)
         puts file_path
         file_path
     end
