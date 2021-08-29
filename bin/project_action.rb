@@ -106,17 +106,6 @@ class ProjectAction < Thor
         puts @project
     end
 
-    desc '_set_base_path', 'set project base path with username'
-    def _set_base_path
-        project_base_path = "#{ENV['HOME']}/Documents/projects/"
-    end
-
-    desc '_set_base_url', 'set project base url with username'
-    def _set_base_url
-        project_base_path = _set_base_path
-        project_base_url = "file://#{project_base_path}"
-    end
-
     desc '_set_evernote_inetloc_app_url', 'collect and set app link for evernote app'
     def _set_evernote_inetloc_app_url(app)
         file_path = "#{folder_path}note.inetloc"
@@ -208,11 +197,14 @@ class ProjectAction < Thor
         folder_or_file_name.gsub(/[^0-9A-Z]/i, '_')
     end
 
+    def _set_base_path
+        project_base_path = "#{ENV['HOME']}/Documents/projects/"
+    end
 
-
-
-
-
+    def _set_base_url
+        project_base_path = _set_base_path
+        project_base_url = "file://#{project_base_path}"
+    end
 
 
 end
