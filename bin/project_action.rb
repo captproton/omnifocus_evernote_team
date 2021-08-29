@@ -67,47 +67,46 @@ class ProjectAction < Thor
     desc 'generate', 'wizard for generating '
     def generate(name)
         # initiate project hash
-        data = _create_project_title(name)
+        @project = _create_project_title(name)
 
         # prompt user to create a note
         say(set_color "--==", :green, :on_black, :bold)
         say(set_color "Make a note in evernote with this title:", :cyan, :on_black, :bold)
-        say(set_color "#{data[:formatted_title]}", :magenta, :on_black)
+        say(set_color "#{@project.formatted_title}", :magenta, :on_black)
 
         # get app link for evernote note & add to data
         evernote_link = ask("What is the evernote app link for the new note (Ctrl ⌥ ⌘ C)?")
         puts "#{evernote_link}"
-        data[:evernote_link] = evernote_link
+        @project.evernote_link = evernote_link
 
         # create project's source folder
-        source_directory_path = data[:source_directory_path]
-        folder = FileUtils.mkdir_p(source_directory_path)
-        say(set_color "…created source folder: `#{data[:source_directory_path]}`", :green, :on_black, :bold)
+        folder = FileUtils.mkdir_p(@project.source_directory_path)
+        say(set_color "…created source folder: `#{@project.source_directory_path}`", :green, :on_black, :bold)
 
         # add README
-        file_path = "#{source_directory_path}/readme.md"
-        file_content = "readme for #{data[:formatted_title]}"
+        file_path = "#{@project.source_directory_path}/readme.md"
+        file_content = "readme for #{@project.formatted_title}"
         File.write(file_path, file_content)
         say(set_color "…created README in source folder: `#{file_path}`", :green, :on_black, :bold) 
 
         # prompt user to create task with an Omnifocus add link
-        omnifocus_add_link = _generate_omnifocus_url(data[:formatted_title], data[:evernote_link])
-                say(set_color "Click on this link:", :green, :on_black, :bold)
+        omnifocus_add_link = _generate_omnifocus_url(@project.formatted_title, @project.evernote_link)
+                say(set_color "Click on this link and press `save` when prompted:", :cyan, :on_black, :bold)
         say(set_color "#{omnifocus_add_link}", :magenta)
 
         # # prompt user
         omnifocus_link = ask("What is the link for the omnifocus project (right click on project and 'copy as link')?")
-        data[:omnifocus_link] = omnifocus_link
+        @project.omnifocus_link = omnifocus_link
 
         # add links to omnifocus project and note to source directory
         
         say(set_color "…adding link project link and notes link file to project source folder", :green, :on_black, :bold)
-        omnifocus_link_file = LinkFile.new.add_interloc_file_to_project_directory(data[:source_directory_path], "omnifocus", data[:omnifocus_link])
-        evernote_link_file = LinkFile.new.add_interloc_file_to_project_directory(data[:source_directory_path], "evernote", data[:evernote_link])
+        omnifocus_link_file = LinkFile.new.add_interloc_file_to_project_directory(@project.source_directory_path, "omnifocus", @project.omnifocus_link)
+        evernote_link_file = LinkFile.new.add_interloc_file_to_project_directory(@project.source_directory_path, "evernote", @project.evernote_link)
         say(set_color "Here's their folder", :green, :on_black, :bold)
-        say(set_color "#{data[:source_directory_path]}", :magenta, :on_black)
+        say(set_color "#{@project.source_directory_path}", :magenta, :on_black)
 
-        puts data
+        puts @project
     end
 
     desc '_set_base_path', 'set project base path with username'
@@ -146,9 +145,8 @@ class ProjectAction < Thor
 
     desc '_create_project_title', 'create project title'
     def _create_project_title(name)
-        Project.new.generate_data_from_title(name)
-        # date_string = Time.new.strftime("%Y-%m-%d")
-        # project_title = "#{date_string}||#{name}"
+        @project = ProjectController.new.create(params={title: name})
+        # Project.new.generate_data_from_title(name)
     end
 
     desc '_set_evernote_inetloc_app_url', 'collect and set app link for evernote app'
