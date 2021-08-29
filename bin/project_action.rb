@@ -126,16 +126,6 @@ class ProjectAction < Thor
         folder_or_file_name.gsub(/[^0-9A-Z]/i, '_')
     end
 
-    desc '_generate_omnifocus_url', 'pieces together omnifocus add url'
-    def _generate_omnifocus_url(project_title, evernote_link)
-        data = Project.new.generate_data_from_title(project_title)
-        url_encoded_project_title = data[:url_encoded_project_title]
-        project_folder_uri = data[:file_uri]
-
-        notes   = "source: #{project_folder_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
-        url     = "omnifocus:///add?project=#{url_encoded_project_title}&name=default%20task&note=#{notes}"
-    end
-
     desc '_create_project_folder', 'create project folder with a safe name'
     def _create_project_folder(formal_project_title)
         source_directory_path = Project.new.generate_data_from_title(formal_project_title)[:source_directory_path]
@@ -219,6 +209,16 @@ class ProjectAction < Thor
         @project = ProjectController.new.create(params={title: name})
         # Project.new.generate_data_from_title(name)
     end
+
+    def _generate_omnifocus_url(project_title, evernote_link)
+        data = Project.new.generate_data_from_title(project_title)
+        url_encoded_project_title = data[:url_encoded_project_title]
+        project_folder_uri = data[:file_uri]
+
+        notes   = "source: #{project_folder_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
+        url     = "omnifocus:///add?project=#{url_encoded_project_title}&name=default%20task&note=#{notes}"
+    end
+
 
 
 end
