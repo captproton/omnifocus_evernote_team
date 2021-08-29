@@ -117,12 +117,6 @@ class ProjectAction < Thor
         project_base_url = "file://#{project_base_path}"
     end
 
-    desc '_sanitize', 'clean up user input to create safe folder or file names'
-    def _sanitize(folder_or_file_name)
-        # Remove any character that aren't 0-9, A-Z, or a-z
-        folder_or_file_name.gsub(/[^0-9A-Z]/i, '_')
-    end
-
     desc '_set_evernote_inetloc_app_url', 'collect and set app link for evernote app'
     def _set_evernote_inetloc_app_url(app)
         file_path = "#{folder_path}note.inetloc"
@@ -208,6 +202,13 @@ class ProjectAction < Thor
     #   </dict>
     # </plist>
     end
+
+    def _sanitize(folder_or_file_name)
+        # Remove any character that aren't 0-9, A-Z, or a-z
+        folder_or_file_name.gsub(/[^0-9A-Z]/i, '_')
+    end
+
+
 
 
 
