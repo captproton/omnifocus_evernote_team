@@ -141,31 +141,6 @@ class ProjectAction < Thor
         file_path
     end
 
-    desc '_new_inetloc_xml', 'create inetlocl xml'
-    def _new_inetloc_xml(app_url)
-        content = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-              xml.doc.create_internal_subset(
-    'plist',
-    "-//Apple//DTD PLIST 1.0//EN",
-    "http://www.apple.com/DTDs/PropertyList-1.0.dtd"
-  )
-            xml.plist {
-                xml.dict {
-                    xml.key "URL"
-                    xml.string app_url
-                }
-            }
-        end
-    #  should render this:
-    # <?xml version="1.0" encoding="UTF-8"?>
-    # <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    # <plist version="1.0">
-    #   <dict>
-    #     <key>URL</key>
-    #     <string>smb://server/share</string>
-    #   </dict>
-    # </plist>
-    end
 # ====================
     private
 
@@ -190,6 +165,8 @@ class ProjectAction < Thor
     end
 
     def _create_inetloc_file(folder_path, app_name, app_url)
+        # inetloc files link to different locations within apps
+        # this might need to be deprecated or replaced by LinkFile#add_interloc_file_to_project_directory
         file_path = "#{folder_path}#{app_name}.inetloc"
         file_content = _new_inetloc_xml(app_url)
 
@@ -206,6 +183,32 @@ class ProjectAction < Thor
         puts file_path
         file_path
     end
+
+    def _new_inetloc_xml(app_url)
+        content = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+              xml.doc.create_internal_subset(
+    'plist',
+    "-//Apple//DTD PLIST 1.0//EN",
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd"
+  )
+            xml.plist {
+                xml.dict {
+                    xml.key "URL"
+                    xml.string app_url
+                }
+            }
+        end
+    #  should render this:
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    # <plist version="1.0">
+    #   <dict>
+    #     <key>URL</key>
+    #     <string>smb://server/share</string>
+    #   </dict>
+    # </plist>
+    end
+
 
 
 
