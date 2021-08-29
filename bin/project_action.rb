@@ -123,12 +123,6 @@ class ProjectAction < Thor
         folder_or_file_name.gsub(/[^0-9A-Z]/i, '_')
     end
 
-    desc '_create_project_title', 'create project title'
-    def _create_project_title(name)
-        @project = ProjectController.new.create(params={title: name})
-        # Project.new.generate_data_from_title(name)
-    end
-
     desc '_set_evernote_inetloc_app_url', 'collect and set app link for evernote app'
     def _set_evernote_inetloc_app_url(app)
         file_path = "#{folder_path}note.inetloc"
