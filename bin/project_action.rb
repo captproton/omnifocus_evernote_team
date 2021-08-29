@@ -1,19 +1,25 @@
 #!/usr/bin/env ruby
-require 'fileutils'
-require 'nokogiri'
-require 'rubygems'
-require 'thor'
-require_relative '../lib/util'
-# require 'term/ansicolor'
-require 'rails/generators/actions'
+require_relative '../config/environment'
 
-class Project < Thor
+class ProjectAction < Thor
     include Thor::Actions
     include Rails::Generators::Actions
   
+    ## Overall steps
+    #   • new_project_title
+    #   • initialize_source_directory
+    #   • create YAML entry with project_title and source_directory path
+    #   • make evernote note manually (since we haven't set up API call yet)
+    #   • update YAML entry with evernote uri
+    #   • initialize_omnifocus_project with links to:
+    #       • project source directory
+    #       • link to evernote note 
+    #   • update YAML omnifocus URI
+    #   • add_inetloc_files_to_source_directory
 
-    desc 'generate_project_title', 'generates formatted project title'
-    def generate_project_title(name)
+
+    desc 'new_project_title', 'generates formatted project title'
+    def new_project_title(name)
         project_title = _create_project_title(name)
         puts project_title
     end
@@ -181,15 +187,16 @@ class Project < Thor
                 }
             }
         end
-#         <?xml version="1.0" encoding="UTF-8"?>
-# <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-# <plist version="1.0">
-# <dict>
-#     <key>URL</key>
-#     <string>smb://server/share</string>
-# </dict>
-# </plist>
+    #  should render this:
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    # <plist version="1.0">
+    #   <dict>
+    #     <key>URL</key>
+    #     <string>smb://server/share</string>
+    #   </dict>
+    # </plist>
     end
 end
 
-Project.start(ARGV)
+ProjectAction.start(ARGV)

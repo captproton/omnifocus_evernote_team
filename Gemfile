@@ -5,6 +5,7 @@ gem 'evernote_oauth', '~> 0.2.3'
 gem 'sinatra', '~> 2.1'
 gem 'puma', '~> 5.4'
 gem 'rails', '~> 6.1', '>= 6.1.4.1'
+gem 'require_all', '~> 3.0'
 
 # local tools
 
