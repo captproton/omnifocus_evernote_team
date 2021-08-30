@@ -87,7 +87,7 @@ class ProjectAction < Thor
         say(set_color "…created README in source folder: `#{file_path}`", :green, :on_black, :bold) 
 
         # prompt user to create task with an Omnifocus add link
-        omnifocus_add_link = _generate_omnifocus_url(@project.formatted_title, @project.evernote_link)
+        omnifocus_add_link = _generate_omnifocus_url(@project.formatted_title, @project.evernote_link, @project.file_uri)
                 say(set_color "Click on this link and press `save` when prompted:", :cyan, :on_black, :bold)
         say(set_color "#{omnifocus_add_link}", :magenta)
 
@@ -114,13 +114,9 @@ class ProjectAction < Thor
         # Project.new.generate_data_from_title(name)
     end
 
-    def _generate_omnifocus_url(project_title, evernote_link)
-        data = Project.new.generate_data_from_title(project_title)
-        url_encoded_project_title = data[:url_encoded_project_title]
-        project_folder_uri = data[:file_uri]
-
-        notes   = "source: #{project_folder_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
-        url     = "omnifocus:///add?project=#{url_encoded_project_title}&name=default%20task&note=#{notes}"
+    def _generate_omnifocus_url(formatted_title, evernote_link, file_uri)
+        notes   = "source: #{file_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
+        url     = "omnifocus:///add?project=#{formatted_title}&name=default%20task&note=#{notes}"
     end
 
     def _create_project_folder(formal_project_title)
