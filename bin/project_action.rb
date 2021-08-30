@@ -104,6 +104,9 @@ class ProjectAction < Thor
         say(set_color "Here's their folder", :green, :on_black, :bold)
         say(set_color "#{@project.source_directory_path}", :magenta, :on_black)
 
+        say(set_color "Paste this into the project's note", :cyan, :on_black, :bold)
+        say(set_color "project link: #{@project.omnifocus_link}\n", :magenta, :on_black)
+        say(set_color "source link: #{@project.file_uri}", :magenta, :on_black)
         puts @project
     end
 
