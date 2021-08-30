@@ -88,7 +88,8 @@ class ProjectAction < Thor
 
         # prompt user to create task with an Omnifocus add link
         omnifocus_add_link = _generate_omnifocus_url(@project.formatted_title, @project.evernote_link, @project.file_uri)
-                say(set_color "Click on this link and press `save` when prompted:", :cyan, :on_black, :bold)
+        say(set_color "the formatted title: `#{@project.formatted_title}`", :green, :on_black, :bold)
+        say(set_color "Click on this link and press `save` when prompted:", :cyan, :on_black, :bold)
         say(set_color "#{omnifocus_add_link}", :magenta)
 
         # # prompt user
@@ -116,7 +117,7 @@ class ProjectAction < Thor
 
     def _generate_omnifocus_url(formatted_title, evernote_link, file_uri)
         notes   = "source: #{file_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
-        url     = "omnifocus:///add?project=#{formatted_title}&name=default%20task&note=#{notes}"
+        url     = "omnifocus:///add?project=#{formatted_title.gsub(/\s/, '%20')}&name=default%20task&note=#{notes}"
     end
 
     def _create_project_folder(formal_project_title)
