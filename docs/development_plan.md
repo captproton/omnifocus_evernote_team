@@ -19,7 +19,25 @@ Migrate the current project orchestration workflow from Evernote to Obsidian. Th
 - [x] Remove the manual user prompts asking for the Evernote App Link in `project_action`.
 
 ## Phase 4: Refactor and Clean Up
-- [ ] Remove duplicate `.inetloc` file generation logic from `project_action` and rely solely on `LinkFile`.
-- [ ] Update OmniFocus integration to accept the new Obsidian URI instead of the Evernote link.
-- [ ] Fix URL encoding: Replace manual `.gsub(/\s/, '%20')` with Ruby's built-in `URI.encode_www_form_component` across the app (`project.rb` and `project_action`).
-- [ ] Test the full `generate` workflow to ensure directories, notes, and OmniFocus projects are created correctly (keeping the manual link copying step for OmniFocus since AppleScript is Pro-only). 
+
+This phase focuses on consolidating logic, standardizing URL encoding, and performing a final end-to-end audit of the Obsidian-centric workflow.
+
+### Architectural Consolidations
+- **[MODIFY] [project_action.rb](file:///Users/carltanner/ruby_apps/omnifocus_evernote_team/bin/project_action.rb)**: Remove any remaining duplicate `.inetloc` file generation logic and ensure it uses the `LinkFile` model exclusively.
+- **[MODIFY] [project.rb](file:///Users/carltanner/ruby_apps/omnifocus_evernote_team/models/project.rb)**: Standardize URL encoding using `URI.encode_www_form_component` instead of manual `gsub`.
+
+### Final Workflow Audit
+- **End-to-End Verification**: Manually verify the `project_action generate` command:
+    1. Folder creation.
+    2. Obsidian note creation (with proper metadata).
+    3. README creation.
+    4. OmniFocus link generation (including Obsidian URI).
+
+## Verification Plan
+
+### Automated Tests
+- Run `bundle exec rspec` to ensure 100% pass rate.
+- Add specific test cases for `URI.encode_www_form_component` edge cases (e.g., symbols in project titles).
+
+### Manual Verification
+- Execute `bin/project_action generate "End-to-End Test"` and verify all artifacts and links.
