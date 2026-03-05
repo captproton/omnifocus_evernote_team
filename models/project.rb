@@ -86,8 +86,15 @@ class Project
     end
 
     def _set_base_path
-        project_base_path = "#{ENV['HOME']}/Documents/projects/"
+        ENV['PROJECTS_BASE_PATH'] || "#{ENV['HOME']}/Documents/projects/"
+    end
 
+    def _obsidian_vault_path
+        ENV['OBSIDIAN_VAULT_PATH']
+    end
+
+    def _obsidian_vault_name
+        ENV['OBSIDIAN_VAULT_NAME']
     end
 
 end

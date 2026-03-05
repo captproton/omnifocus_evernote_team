@@ -50,9 +50,50 @@ RSpec.describe Project do
   end
 
   describe '#_set_base_path' do
-    it 'returns the projects directory in the user\'s home folder' do
+    it 'returns the projects directory in the user\'s home folder by default' do
+      # Ensure env var is cleared for this test
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('PROJECTS_BASE_PATH').and_return(nil)
       result = project._set_base_path
       expect(result).to eq("#{ENV['HOME']}/Documents/projects/")
+    end
+
+    it 'respects the PROJECTS_BASE_PATH environment variable if set' do
+      custom_path = "/tmp/other_projects/"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('PROJECTS_BASE_PATH').and_return(custom_path)
+      result = project._set_base_path
+      expect(result).to eq(custom_path)
+    end
+  end
+
+  describe '#_obsidian_vault_path' do
+    it 'returns nil if OBSIDIAN_VAULT_PATH is not set' do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(nil)
+      expect(project._obsidian_vault_path).to be_nil
+    end
+
+    it 'returns the vault path if set' do
+      vault_path = "/Users/test/Vault"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(vault_path)
+      expect(project._obsidian_vault_path).to eq(vault_path)
+    end
+  end
+
+  describe '#_obsidian_vault_name' do
+    it 'returns nil if OBSIDIAN_VAULT_NAME is not set' do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(nil)
+      expect(project._obsidian_vault_name).to be_nil
+    end
+
+    it 'returns the vault name if set' do
+      vault_name = "MyProjects"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(vault_name)
+      expect(project._obsidian_vault_name).to eq(vault_name)
     end
   end
 

@@ -7,4 +7,6 @@ gem 'puma', '~> 5.4'
 gem 'rails', '~> 8', '>= 8.0.1'
 gem 'require_all', '~> 3.0'
 
+gem 'dotenv'
+
 # local tools
