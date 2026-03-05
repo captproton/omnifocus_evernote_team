@@ -207,6 +207,14 @@ RSpec.describe Project do
       expect(project.obsidian_uri).to include("vault=My%20Vault")
       expect(project.obsidian_uri).to include("file=2026_03_05__Project___Co")
     end
+
+    it 'returns nil if vault name is blank or unset' do
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(nil)
+      expect(project.obsidian_uri).to be_nil
+
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return("  ")
+      expect(project.obsidian_uri).to be_nil
+    end
   end
 
   describe '#create_obsidian_note' do
@@ -239,7 +247,16 @@ RSpec.describe Project do
 
     it 'ensures the vault directory exists' do
       project.create_obsidian_note
-      expect(FileUtils).to have_received(:mkdir_p).with(vault_path)
+      expect(FileUtils).to have_received(:mkdir_p).with(File.expand_path(vault_path))
+    end
+
+    it 'expands paths and strips whitespace for OBSIDIAN_VAULT_PATH' do
+      custom_path = "  ~/obsidian_testing/  "
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(custom_path)
+      
+      expected_expanded_path = File.expand_path("~/obsidian_testing")
+      project.create_obsidian_note
+      expect(FileUtils).to have_received(:mkdir_p).with(expected_expanded_path)
     end
   end
 end

@@ -92,7 +92,9 @@ class Project
     end
 
     def _obsidian_vault_path
-        ENV['OBSIDIAN_VAULT_PATH']
+        path = ENV['OBSIDIAN_VAULT_PATH'].to_s.strip
+        return nil if path.empty?
+        File.expand_path(path)
     end
 
     def _obsidian_vault_name
@@ -100,7 +102,10 @@ class Project
     end
 
     def obsidian_uri
-        vault = URI.encode_www_form_component(_obsidian_vault_name.to_s).gsub('+', '%20')
+        vault_name = _obsidian_vault_name.to_s.strip
+        return nil if vault_name.empty?
+        
+        vault = URI.encode_www_form_component(vault_name).gsub('+', '%20')
         # Ensure we have a formatted title to work with
         title_to_use = formatted_title.empty? ? generate_formatted_title(@title) : formatted_title
         file = URI.encode_www_form_component(_sanitize(title_to_use)).gsub('+', '%20')
