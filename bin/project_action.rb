@@ -28,9 +28,57 @@ class ProjectAction < Thor
         puts omnifocus_url
     end
 
-    desc 'initialize_project_directory', 'creates a project folder based on the formatted title'
-    def initialize_project_directory(project_title)
-        _create_project_folder(project_title)
+    desc 'list', 'lists all managed projects'
+    def list
+        projects = ProjectController.new.index
+        if projects.empty?
+            say "No projects found.", :yellow
+        else
+            say(set_color "Managed Projects:", :green, :on_black, :bold)
+            projects.each do |p|
+                say "- #{p.title} (#{p.formatted_title})"
+            end
+        end
+    end
+
+    desc 'show [title]', 'displays details for a specific project'
+    def show(title)
+        project = ProjectController.new.show(title)
+        if project
+            say(set_color "Project: #{project.title}", :green, :on_black, :bold)
+            say "Title:    #{project.formatted_title}"
+            say "Folder:   #{project.source_directory_path}"
+            say "Obsidian: #{project.obsidian_uri}"
+            say "OF Link:  #{project.omnifocus_link}"
+        else
+            say "Project '#{title}' not found.", :red
+        end
+    end
+
+    desc 'delete [title]', 'removes a project from the managed list'
+    method_option :disk, type: :boolean, default: false, desc: "Also delete the source folder and Obsidian note"
+    def delete(title)
+        project = ProjectController.new.show(title)
+        unless project
+            say "Project '#{title}' not found.", :red
+            return
+        end
+
+        if yes?("Are you sure you want to delete '#{title}' from the database? (y/n)")
+            if options[:disk]
+                if yes?("WARNING: This will also delete the folder and Obsidian note. Proceed? (y/n)")
+                    FileUtils.rm_rf(project.source_directory_path)
+                    vault_path = ENV['OBSIDIAN_VAULT_PATH']
+                    if vault_path
+                        note_path = File.join(File.expand_path(vault_path), "#{_sanitize(project.formatted_title)}.md")
+                        File.delete(note_path) if File.exist?(note_path)
+                    end
+                    say "Files deleted.", :yellow
+                end
+            end
+            ProjectController.new.destroy(title)
+            say "Project '#{title}' removed from database.", :green
+        end
     end
 
     no_commands do
@@ -69,7 +117,8 @@ class ProjectAction < Thor
         link_tool = LinkFile.new
         link_tool.add_inetloc_file(@project.source_directory_path, "omnifocus", @project.omnifocus_link)
         
-        # update obsidian note with the now-available omnifocus link
+        # update obsidian note and database with the now-available omnifocus link
+        @project.save
         @project.create_obsidian_note
 
         say(set_color "\nSuccess! Project Orchestrated.", :green, :on_black, :bold)
