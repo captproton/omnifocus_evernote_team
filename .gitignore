@@ -1,5 +1,6 @@
 ### Ruby.gitignore
 
+# Existing Ruby ignores
 *.gem
 *.rbc
 /.config
@@ -14,8 +15,29 @@
 /config/settings.yaml
 
 # Used by dotenv library to load environment variables.
-# .env
+.env
 
+# Mac specific ignores
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Application specific
+# Already included but good to keep
+/config/settings.yaml
+# Ignore local Mac URL files
+*.inetloc
+# Ignore generated project folders if they're in the repo
+/projects/
+# For any environment variables
+.env
+
+# IDE/Editor specific
+.vscode/
+.idea/
+*.swp
+*~
 
 ## Documentation cache and generated files:
 /.yardoc/
@@ -27,6 +49,18 @@
 /.bundle/
 /vendor/bundle
 /lib/bundler/man/
+
+# Ruby environment managers (some already included)
+.ruby-version
+.ruby-gemset
+.rbenv-version
+.rvmrc
+.tool-versions
+
+# Dependencies
+/vendor/bundle/
+# Consider tracking this for applications
+Gemfile.lock
 
 # for a library or gem, you might want to ignore these files since the code is
 # intended to run in multiple environments; otherwise, check them in:

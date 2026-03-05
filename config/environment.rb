@@ -1,4 +1,5 @@
 # gems and stdlib
+require 'dotenv/load'
 require 'cgi'
 require 'fileutils'
 require 'nokogiri'
