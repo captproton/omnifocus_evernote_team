@@ -81,6 +81,7 @@ GEM
     crass (1.0.6)
     date (3.4.1)
     diff-lcs (1.6.0)
+    dotenv (3.2.0)
     drb (2.2.1)
     erubi (1.13.1)
     evernote-thrift (1.25.2)
@@ -247,6 +248,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  dotenv
   evernote_oauth (~> 0.2.3)
   nokogiri
   puma (~> 5.4)

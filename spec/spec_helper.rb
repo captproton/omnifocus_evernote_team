@@ -1,3 +1,4 @@
+require 'dotenv/load'
 require 'cgi'
 require 'fileutils'
 require 'nokogiri'

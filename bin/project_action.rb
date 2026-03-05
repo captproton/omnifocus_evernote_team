@@ -180,7 +180,7 @@ class ProjectAction < Thor
     end
 
     def _set_base_path
-        project_base_path = "#{ENV['HOME']}/Documents/projects/"
+        Project.new._set_base_path
     end
 
     def _set_base_url
