@@ -47,20 +47,10 @@ class Project
     end
 
     def generate_data_from_title(title)
-        formatted_title             = self.generate_formatted_title(title)
-        url_encoded_project_title   = self.generate_omnifocus_encoded_project_title(title)
-        source_directory_path       = self._generate_source_directory_path(formatted_title)
-        evernote_link               = ""
-        omnifocus_link              = ""
-        file_uri                    = "file://#{source_directory_path}"
-        {title: title, 
-                        formatted_title: formatted_title,
-                        url_encoded_project_title: url_encoded_project_title,
-                        source_directory_path: source_directory_path,
-                        file_uri: file_uri,
-                        evernote_link: evernote_link,
-                        omnifocus_link: omnifocus_link
-                       }
+        fmt = generate_formatted_title(title)
+        dir = _generate_source_directory_path(fmt)
+        { title: title, formatted_title: fmt, url_encoded_project_title: generate_omnifocus_encoded_project_title(title),
+          source_directory_path: dir, file_uri: "file://#{dir}", evernote_link: "", omnifocus_link: "" }
     end
 
     def generate_formatted_title(title)
@@ -76,56 +66,58 @@ class Project
         "#{_set_base_path}#{_sanitize(formatted_title)}/"
     end
 
-    def _sanitize(formatted_title)
-        formatted_title.gsub(/[^0-9A-Z]/i, '_')
-    end
-
     def _set_base_path
-        path = ENV['PROJECTS_BASE_PATH'].to_s.strip
-        if path.empty?
-            path = "#{ENV['HOME']}/Documents/projects/"
-        else
-            path = File.expand_path(path)
-        end
+        path = _env_path('PROJECTS_BASE_PATH') || "#{ENV['HOME']}/Documents/projects/"
         path += "/" unless path.end_with?("/")
         path
     end
 
-    def _obsidian_vault_path
-        path = ENV['OBSIDIAN_VAULT_PATH'].to_s.strip
-        return nil if path.empty?
-        File.expand_path(path)
-    end
-
-    def _obsidian_vault_name
-        ENV['OBSIDIAN_VAULT_NAME']
-    end
-
     def obsidian_uri
-        vault_name = _obsidian_vault_name.to_s.strip
-        return nil if vault_name.empty?
-        
-        vault = URI.encode_www_form_component(vault_name).gsub('+', '%20')
-        # Ensure we have a formatted title to work with
-        title_to_use = formatted_title.empty? ? generate_formatted_title(@title) : formatted_title
-        file = URI.encode_www_form_component(_sanitize(title_to_use)).gsub('+', '%20')
-        "obsidian://open?vault=#{vault}&file=#{file}"
+        return unless _obsidian_vault_name
+        "obsidian://open?vault=#{_url_encode(_obsidian_vault_name)}&file=#{_url_encode(_sanitize(_effective_title))}"
     end
 
     def create_obsidian_note
-        vault_path = _obsidian_vault_path
-        return unless vault_path
-        
-        # Ensure we have a formatted title
-        title_to_use = formatted_title.empty? ? generate_formatted_title(@title) : formatted_title
-        
-        FileUtils.mkdir_p(vault_path)
-        
-        filename = "#{_sanitize(title_to_use)}.md"
-        full_path = File.join(vault_path, filename)
-        
-        content = <<~MARKDOWN
-          # #{title_to_use}
+        return unless _obsidian_vault_path
+        FileUtils.mkdir_p(_obsidian_vault_path)
+        File.write(File.join(_obsidian_vault_path, "#{_sanitize(_effective_title)}.md"), _note_content)
+    end
+
+    private
+
+    def _sanitize(formatted_title)
+        formatted_title.gsub(/[^0-9A-Z]/i, '_')
+    end
+
+    def _env_path(key)
+        val = ENV[key].to_s.strip
+        val.empty? ? nil : File.expand_path(val)
+    end
+
+    def _blank?(val)
+        val.to_s.strip.empty?
+    end
+
+    def _obsidian_vault_path
+        _env_path('OBSIDIAN_VAULT_PATH')
+    end
+
+    def _obsidian_vault_name
+        name = ENV['OBSIDIAN_VAULT_NAME'].to_s.strip
+        name.empty? ? nil : name
+    end
+
+    def _effective_title
+        formatted_title.empty? ? generate_formatted_title(@title) : formatted_title
+    end
+
+    def _url_encode(str)
+        URI.encode_www_form_component(str).gsub('+', '%20')
+    end
+
+    def _note_content
+        <<~MARKDOWN
+          # #{_effective_title}
           
           Created: #{Time.new.strftime("%Y-%m-%d")}
           
@@ -133,8 +125,5 @@ class Project
           - [Local Directory](#{file_uri})
           - [OmniFocus](#{omnifocus_link})
         MARKDOWN
-        
-        File.write(full_path, content)
     end
-
 end

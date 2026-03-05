@@ -29,22 +29,22 @@ RSpec.describe Project do
 
   describe '#_sanitize' do
     it 'replaces spaces with underscores' do
-      result = project._sanitize("my cool project")
+      result = project.send(:_sanitize, "my cool project")
       expect(result).to eq("my_cool_project")
     end
 
     it 'replaces hyphens with underscores' do
-      result = project._sanitize("2021-08-27||superzooks")
+      result = project.send(:_sanitize, "2021-08-27||superzooks")
       expect(result).to eq("2021_08_27__superzooks")
     end
 
     it 'replaces all special characters with underscores' do
-      result = project._sanitize("hello world!")
+      result = project.send(:_sanitize, "hello world!")
       expect(result).to eq("hello_world_")
     end
 
     it 'preserves alphanumeric characters unchanged' do
-      result = project._sanitize("superzooks123")
+      result = project.send(:_sanitize, "superzooks123")
       expect(result).to eq("superzooks123")
     end
   end
@@ -94,14 +94,14 @@ RSpec.describe Project do
     it 'returns nil if OBSIDIAN_VAULT_PATH is not set' do
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(nil)
-      expect(project._obsidian_vault_path).to be_nil
+      expect(project.send(:_obsidian_vault_path)).to be_nil
     end
 
     it 'returns the vault path if set' do
       vault_path = "/Users/test/Vault"
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(vault_path)
-      expect(project._obsidian_vault_path).to eq(vault_path)
+      expect(project.send(:_obsidian_vault_path)).to eq(vault_path)
     end
   end
 
@@ -109,14 +109,14 @@ RSpec.describe Project do
     it 'returns nil if OBSIDIAN_VAULT_NAME is not set' do
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(nil)
-      expect(project._obsidian_vault_name).to be_nil
+      expect(project.send(:_obsidian_vault_name)).to be_nil
     end
 
     it 'returns the vault name if set' do
       vault_name = "MyProjects"
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(vault_name)
-      expect(project._obsidian_vault_name).to eq(vault_name)
+      expect(project.send(:_obsidian_vault_name)).to eq(vault_name)
     end
   end
 
