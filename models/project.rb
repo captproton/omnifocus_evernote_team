@@ -6,7 +6,6 @@ class Project
                     :url_encoded_project_title, 
                     :source_directory_path, 
                     :file_uri, 
-                    :evernote_link, 
                     :omnifocus_link, 
                     :params
     )
@@ -17,7 +16,6 @@ class Project
                     url_encoded_project_title: "",
                     source_directory_path: "",
                     file_uri: "", 
-                    evernote_link: "", 
                     omnifocus_link: "",
                     params: {}                    
         )
@@ -26,12 +24,11 @@ class Project
         @url_encoded_project_title  = url_encoded_project_title.to_s
         @source_directory_path      = source_directory_path.to_s
         @file_uri                   = file_uri.to_s
-        @evernote_link              = evernote_link.to_s
         @omnifocus_link             = omnifocus_link.to_s
         @params = params
     end
     
-    # attributes: title, source_directory_path, evernote_link, omnifocus_link 
+    # attributes: title, source_directory_path, omnifocus_link 
     def hello
         "hello world"
     end
@@ -50,7 +47,7 @@ class Project
         fmt = generate_formatted_title(title)
         dir = _generate_source_directory_path(fmt)
         { title: title, formatted_title: fmt, url_encoded_project_title: generate_omnifocus_encoded_project_title(title),
-          source_directory_path: dir, file_uri: "file://#{dir}", evernote_link: "", omnifocus_link: "" }
+          source_directory_path: dir, file_uri: "file://#{dir}", omnifocus_link: "" }
     end
 
     def generate_formatted_title(title)

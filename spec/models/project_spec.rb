@@ -137,7 +137,7 @@ RSpec.describe Project do
     it 'returns a hash with the correct keys' do
       expect(data.keys).to contain_exactly(
         :title, :formatted_title, :url_encoded_project_title,
-        :source_directory_path, :file_uri, :evernote_link, :omnifocus_link
+        :source_directory_path, :file_uri, :omnifocus_link
       )
     end
 
@@ -150,9 +150,6 @@ RSpec.describe Project do
       expect(data[:file_uri]).to include("superzooks")
     end
 
-    it 'leaves evernote_link blank' do
-      expect(data[:evernote_link]).to eq("")
-    end
 
     it 'leaves omnifocus_link blank' do
       expect(data[:omnifocus_link]).to eq("")
@@ -164,12 +161,10 @@ RSpec.describe Project do
       p = Project.new(
         title: "Test",
         formatted_title: "2021-08-27||Test",
-        evernote_link: "evernote:///view/123",
         omnifocus_link: "omnifocus:///task/abc"
       )
       expect(p.title).to eq("Test")
       expect(p.formatted_title).to eq("2021-08-27||Test")
-      expect(p.evernote_link).to eq("evernote:///view/123")
       expect(p.omnifocus_link).to eq("omnifocus:///task/abc")
     end
 
@@ -177,7 +172,6 @@ RSpec.describe Project do
       p = Project.new
       expect(p.title).to eq("")
       expect(p.formatted_title).to eq("")
-      expect(p.evernote_link).to eq("")
       expect(p.omnifocus_link).to eq("")
     end
   end

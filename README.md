@@ -1,20 +1,40 @@
-README.md
-## README
+# OmniFocus Obsidian Team
 
-progress 
-===
-* 
-* generates folder for project with default link files to omnifocus and evernote
+A Ruby-based CLI to orchestrate project creation across OmniFocus and Obsidian.
 
-steps (to be streamline in a generate function)
-===
-* ./project generate_project_title superzooks
-* ./project initialize_project_directory '2021-08-27||superzooks'
-* ./project initialize_omnifocus_project '2021-08-27||superzooks'
-* create a note in evernote with the formal project title -- 2021-08-27||superzooks
-* get app_url_for_omnifocus_project from right click on project
-* get app_url_for_evernote from right click on note
-* ./project add_inetloc_files_to_project_directory '2021-08-27||superzooks' app_url_for_omnifocus_project app_url_for_evernote
+## Features
+- **Automated Directory Creation**: Generates a standard project folder structure.
+- **Obsidian Integration**: Automatically creates a project note in your Obsidian vault with standard metadata.
+- **OmniFocus Integration**: Generates an OmniFocus project/task with deep links back to the project folder and Obsidian note.
+- **Path Normalization**: Handles custom base paths and Obsidian vault locations via environment variables.
 
+## Getting Started
 
+1. **Configure Environment**:
+   Create a `.env` file in the root directory:
+   ```bash
+   PROJECTS_BASE_PATH="~/Documents/projects/"
+   OBSIDIAN_VAULT_PATH="~/Documents/MyVault/"
+   OBSIDIAN_VAULT_NAME="MyVault"
+   ```
 
+2. **Generate a Project**:
+   Run the wizard to set up everything:
+   ```bash
+   ./project_action generate "My Awesome Project"
+   ```
+
+## Development
+
+### Running Tests
+```bash
+bundle exec rspec
+```
+
+### Key Components
+- `Project`: Core model managing project metadata and Obsidian generation.
+- `ProjectAction`: CLI interface (built with Thor).
+- `LinkFile`: Handles creation of `.inetloc` files for macOS deep linking.
+
+---
+*Migrated from Evernote to Obsidian in March 2026.*

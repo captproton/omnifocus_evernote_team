@@ -24,8 +24,7 @@ class ProjectController
 
     def project_params
         params.require(:project).permit(:title,
-                    :source_directory_path,
-                    :evernote_link, 
+                    :source_directory_path, 
                     :omnifocus_link)
     end
 end
