@@ -134,6 +134,7 @@ GEM
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
+    pstore (0.2.1)
     psych (5.2.3)
       date
       stringio
@@ -222,6 +223,7 @@ PLATFORMS
 DEPENDENCIES
   dotenv
   nokogiri
+  pstore
   rails (~> 8, >= 8.0.1)
   require_all (~> 3.0)
   rspec

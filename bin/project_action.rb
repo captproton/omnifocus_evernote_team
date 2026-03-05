@@ -33,13 +33,15 @@ class ProjectAction < Thor
         _create_project_folder(project_title)
     end
 
-    def add_inetloc_files_to_project_directory(project_title, omnifocus_url="omnifocus:///task/morning")
-        folder_name = _sanitize(project_title)
-        folder_base_path = _set_base_path
-        folder_path = File.join(folder_base_path, folder_name)
-        
-        LinkFile.new.add_inetloc_file(folder_path, "omnifocus", omnifocus_url)
-        LinkFile.new.add_readme_file(folder_path, project_title)
+    no_commands do
+        def add_inetloc_files_to_project_directory(project_title, omnifocus_url="omnifocus:///task/morning")
+            folder_name = _sanitize(project_title)
+            folder_base_path = _set_base_path
+            folder_path = File.join(folder_base_path, folder_name)
+            
+            LinkFile.new.add_inetloc_file(folder_path, "omnifocus", omnifocus_url)
+            LinkFile.new.add_readme_file(folder_path, project_title)
+        end
     end
 
     desc 'generate [project_title]', 'Wizard for generating a project in OmniFocus with an Obsidian note and source folder.'
@@ -49,15 +51,10 @@ class ProjectAction < Thor
 
         # create project's source folder
         FileUtils.mkdir_p(@project.source_directory_path)
-        say(set_color "…created source folder: `#{@project.source_directory_path}`", :green, :on_black, :bold)
 
-        # create obsidian note
+        # add README and Obsidian note
         @project.create_obsidian_note
-        say(set_color "…created Obsidian note in vault", :green, :on_black, :bold)
-
-        # add README
         LinkFile.new.add_readme_file(@project.source_directory_path, @project.formatted_title)
-        say(set_color "…created README in source folder", :green, :on_black, :bold)
 
         # prompt user to create task with an Omnifocus add link
         omnifocus_add_link = _generate_omnifocus_url(@project.formatted_title, @project.obsidian_uri, @project.file_uri)
@@ -66,17 +63,20 @@ class ProjectAction < Thor
         say(set_color "#{omnifocus_add_link}", :magenta)
 
         # prompt user for OmniFocus project link
-        @project.omnifocus_link = ask("What is the link for the omnifocus project (right click on project and 'copy as link')?")
+        @project.omnifocus_link = ask("OmniFocus Project Link (Right-click > Copy as Link):")
 
-        say(set_color "…adding project link to project source folder", :green, :on_black, :bold)
-        LinkFile.new.add_inetloc_file(@project.source_directory_path, "omnifocus", @project.omnifocus_link)
+        say(set_color "…finalizing links", :green, :on_black, :bold)
+        link_tool = LinkFile.new
+        link_tool.add_inetloc_file(@project.source_directory_path, "omnifocus", @project.omnifocus_link)
         
-        say(set_color "Here's their folder:", :green, :on_black, :bold)
-        say(set_color "#{@project.source_directory_path}", :magenta, :on_black)
+        # update obsidian note with the now-available omnifocus link
+        @project.create_obsidian_note
 
-        say(set_color "Paste this into the project's note:", :cyan, :on_black, :bold)
-        say(set_color "project link: #{@project.omnifocus_link}", :magenta, :on_black)
-        say(set_color "source link: #{@project.file_uri}", :magenta, :on_black)
+        say(set_color "\nSuccess! Project Orchestrated.", :green, :on_black, :bold)
+        say "Project:  #{@project.formatted_title}"
+        say "Folder:   #{@project.source_directory_path}"
+        say "Obsidian: #{@project.obsidian_uri}"
+        say "OF Link:  #{@project.omnifocus_link}"
     end
 
     private

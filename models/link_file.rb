@@ -5,14 +5,12 @@ class LinkFile
         file_content = _new_inetloc_xml(app_url)
 
         File.write(file_path, file_content.to_xml)
-        puts file_path
         file_path
     end
 
     def add_readme_file(source_directory, project_title)
         file_path = File.join(source_directory, "readme.md")
         File.write(file_path, "readme for #{project_title}")
-        puts file_path
         file_path
     end
 

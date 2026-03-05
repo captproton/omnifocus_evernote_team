@@ -39,7 +39,6 @@ class Project
     end
 
     def save
-        puts "project saved!"
         self
     end
 
@@ -114,7 +113,7 @@ class Project
 
     def _note_content
         <<~MARKDOWN
-          # #{_effective_title}
+          # #{_sanitize(_effective_title)}
           
           Created: #{Time.new.strftime("%Y-%m-%d")}
           

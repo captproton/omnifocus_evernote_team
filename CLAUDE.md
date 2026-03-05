@@ -32,7 +32,7 @@ This project follows two core principles:
 
 ## Overview
 
-`omnifocus_evernote_team` is a Ruby-based Command Line Interface (CLI) application built using the `Thor` gem. 
+`omnifocus_obsidian_team` is a Ruby-based Command Line Interface (CLI) application built using the `Thor` gem. 
 Its primary purpose is to orchestrate cross-platform project setups by:
 1. Generating local file system directories.
 2. Creating local markdown notes (Obsidian).
@@ -99,7 +99,7 @@ When `gh` CLI is not available, use the GitHub API directly:
 curl -s -X POST \
   -H "Authorization: token YOUR_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
-  https://api.github.com/repos/captproton/omnifocus_evernote_team/pulls \
+  https://api.github.com/repos/captproton/omnifocus_obsidian_team/pulls \
   -d '{
     "title": "PR Title",
     "head": "feature-branch",

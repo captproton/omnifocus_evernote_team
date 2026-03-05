@@ -5,5 +5,6 @@ gem 'require_all', '~> 3.0'
 gem 'rails', '~> 8', '>= 8.0.1'
 
 gem 'dotenv'
+gem 'pstore'
 
 # local tools
