@@ -29,22 +29,22 @@ RSpec.describe Project do
 
   describe '#_sanitize' do
     it 'replaces spaces with underscores' do
-      result = project._sanitize("my cool project")
+      result = project.send(:_sanitize, "my cool project")
       expect(result).to eq("my_cool_project")
     end
 
     it 'replaces hyphens with underscores' do
-      result = project._sanitize("2021-08-27||superzooks")
+      result = project.send(:_sanitize, "2021-08-27||superzooks")
       expect(result).to eq("2021_08_27__superzooks")
     end
 
     it 'replaces all special characters with underscores' do
-      result = project._sanitize("hello world!")
+      result = project.send(:_sanitize, "hello world!")
       expect(result).to eq("hello_world_")
     end
 
     it 'preserves alphanumeric characters unchanged' do
-      result = project._sanitize("superzooks123")
+      result = project.send(:_sanitize, "superzooks123")
       expect(result).to eq("superzooks123")
     end
   end
@@ -94,14 +94,14 @@ RSpec.describe Project do
     it 'returns nil if OBSIDIAN_VAULT_PATH is not set' do
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(nil)
-      expect(project._obsidian_vault_path).to be_nil
+      expect(project.send(:_obsidian_vault_path)).to be_nil
     end
 
     it 'returns the vault path if set' do
       vault_path = "/Users/test/Vault"
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(vault_path)
-      expect(project._obsidian_vault_path).to eq(vault_path)
+      expect(project.send(:_obsidian_vault_path)).to eq(vault_path)
     end
   end
 
@@ -109,14 +109,14 @@ RSpec.describe Project do
     it 'returns nil if OBSIDIAN_VAULT_NAME is not set' do
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(nil)
-      expect(project._obsidian_vault_name).to be_nil
+      expect(project.send(:_obsidian_vault_name)).to be_nil
     end
 
     it 'returns the vault name if set' do
       vault_name = "MyProjects"
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(vault_name)
-      expect(project._obsidian_vault_name).to eq(vault_name)
+      expect(project.send(:_obsidian_vault_name)).to eq(vault_name)
     end
   end
 
@@ -179,6 +179,84 @@ RSpec.describe Project do
       expect(p.formatted_title).to eq("")
       expect(p.evernote_link).to eq("")
       expect(p.omnifocus_link).to eq("")
+    end
+  end
+
+  describe '#obsidian_uri' do
+    let(:project) { Project.new(title: "My New Project") }
+
+    before do
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return('WorkVault')
+    end
+
+    it 'generates a valid obsidian open URI' do
+      fixed_time = Time.new(2026, 3, 5)
+      allow(Time).to receive(:new).and_return(fixed_time)
+      
+      expected_uri = "obsidian://open?vault=WorkVault&file=2026_03_05__My_New_Project"
+      expect(project.obsidian_uri).to eq(expected_uri)
+    end
+
+    it 'URL encodes vault and file names' do
+      project.title = "Project & Co"
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return('My Vault')
+      
+      fixed_time = Time.new(2026, 3, 5)
+      allow(Time).to receive(:new).and_return(fixed_time)
+      
+      expect(project.obsidian_uri).to include("vault=My%20Vault")
+      expect(project.obsidian_uri).to include("file=2026_03_05__Project___Co")
+    end
+
+    it 'returns nil if vault name is blank or unset' do
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return(nil)
+      expect(project.obsidian_uri).to be_nil
+
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return("  ")
+      expect(project.obsidian_uri).to be_nil
+    end
+  end
+
+  describe '#create_obsidian_note' do
+    let(:project) { Project.new(title: "Obsidian Test") }
+    let(:vault_path) { "/tmp/obsidian_vault/" }
+
+    before do
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(vault_path)
+      
+      fixed_time = Time.new(2026, 3, 5)
+      allow(Time).to receive(:new).and_return(fixed_time)
+      
+      allow(FileUtils).to receive(:mkdir_p)
+      allow(File).to receive(:write)
+    end
+
+    it 'creates a markdown file in the correct vault path' do
+      expected_file_path = "/tmp/obsidian_vault/2026_03_05__Obsidian_Test.md"
+      project.create_obsidian_note
+      expect(File).to have_received(:write).with(expected_file_path, anything)
+    end
+
+    it 'includes the project title and date in the note content' do
+      project.create_obsidian_note
+      expect(File).to have_received(:write) do |_path, content|
+        expect(content).to include("# 2026-03-05||Obsidian Test")
+        expect(content).to include("Created: 2026-03-05")
+      end
+    end
+
+    it 'ensures the vault directory exists' do
+      project.create_obsidian_note
+      expect(FileUtils).to have_received(:mkdir_p).with(File.expand_path(vault_path))
+    end
+
+    it 'expands paths and strips whitespace for OBSIDIAN_VAULT_PATH' do
+      custom_path = "  ~/obsidian_testing/  "
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(custom_path)
+      
+      expected_expanded_path = File.expand_path("~/obsidian_testing")
+      project.create_obsidian_note
+      expect(FileUtils).to have_received(:mkdir_p).with(expected_expanded_path)
     end
   end
 end
