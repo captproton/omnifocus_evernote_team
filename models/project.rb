@@ -34,12 +34,44 @@ class Project
     end
 
 
-    def _find_by_title(title)
-        
+    def save
+        Project.store.transaction do
+            Project.store[@title] = {
+                title: @title,
+                formatted_title: @formatted_title,
+                url_encoded_project_title: @url_encoded_project_title,
+                source_directory_path: @source_directory_path,
+                file_uri: @file_uri,
+                omnifocus_link: @omnifocus_link,
+                params: @params
+            }
+        end
+        self
     end
 
-    def save
-        self
+    def delete
+        Project.store.transaction do
+            Project.store.delete(@title)
+        end
+    end
+
+    def self.all
+        Project.store.transaction(true) do
+            Project.store.roots.map do |title|
+                Project.new(**Project.store[title])
+            end
+        end
+    end
+
+    def self.find_by_title(title)
+        Project.store.transaction(true) do
+            data = Project.store[title]
+            data ? Project.new(**data) : nil
+        end
+    end
+
+    def self.store
+        @store ||= YAML::Store.new(File.expand_path("~/.omnifocus_obsidian_projects.yml"))
     end
 
     def generate_data_from_title(title)
