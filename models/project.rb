@@ -56,7 +56,7 @@ class Project
     end
 
     def generate_omnifocus_encoded_project_title(title)
-        title.gsub(/\s/, '%20')              
+        _url_encode(title)
     end
 
     def _generate_source_directory_path(formatted_title)

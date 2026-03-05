@@ -33,14 +33,13 @@ class ProjectAction < Thor
         _create_project_folder(project_title)
     end
 
-    desc 'add_inetloc_files_to_project_directory', 'creates project inetloc files based on the formatted title'
     def add_inetloc_files_to_project_directory(project_title, omnifocus_url="omnifocus:///task/morning")
         folder_name = _sanitize(project_title)
         folder_base_path = _set_base_path
-        folder_path = "#{folder_base_path}#{folder_name}/"
+        folder_path = File.join(folder_base_path, folder_name)
         
-        _create_inetloc_file(folder_path, "omnifocus", omnifocus_url)
-        _create_readme_file(folder_path, project_title)
+        LinkFile.new.add_inetloc_file(folder_path, "omnifocus", omnifocus_url)
+        LinkFile.new.add_readme_file(folder_path, project_title)
     end
 
     desc 'generate [project_title]', 'Wizard for generating a project in OmniFocus with an Obsidian note and source folder.'
@@ -57,9 +56,8 @@ class ProjectAction < Thor
         say(set_color "…created Obsidian note in vault", :green, :on_black, :bold)
 
         # add README
-        file_path = "#{@project.source_directory_path}/readme.md"
-        File.write(file_path, "readme for #{@project.formatted_title}")
-        say(set_color "…created README in source folder: `#{file_path}`", :green, :on_black, :bold)
+        LinkFile.new.add_readme_file(@project.source_directory_path, @project.formatted_title)
+        say(set_color "…created README in source folder", :green, :on_black, :bold)
 
         # prompt user to create task with an Omnifocus add link
         omnifocus_add_link = _generate_omnifocus_url(@project.formatted_title, @project.obsidian_uri, @project.file_uri)
@@ -71,7 +69,7 @@ class ProjectAction < Thor
         @project.omnifocus_link = ask("What is the link for the omnifocus project (right click on project and 'copy as link')?")
 
         say(set_color "…adding project link to project source folder", :green, :on_black, :bold)
-        LinkFile.new.add_interloc_file_to_project_directory(@project.source_directory_path, "omnifocus", @project.omnifocus_link)
+        LinkFile.new.add_inetloc_file(@project.source_directory_path, "omnifocus", @project.omnifocus_link)
         
         say(set_color "Here's their folder:", :green, :on_black, :bold)
         say(set_color "#{@project.source_directory_path}", :magenta, :on_black)
@@ -88,8 +86,8 @@ class ProjectAction < Thor
     end
 
     def _generate_omnifocus_url(formatted_title, note_link, file_uri)
-        notes = "source: #{file_uri}\n\nnotes: #{note_link}".gsub(/\s/, '%20')
-        "omnifocus:///add?project=#{formatted_title.gsub(/\s/, '%20')}&name=default%20task&note=#{notes}"
+        notes = URI.encode_www_form_component("source: #{file_uri}\n\nnotes: #{note_link}").gsub('+', '%20')
+        "omnifocus:///add?project=#{URI.encode_www_form_component(formatted_title).gsub('+', '%20')}&name=default%20task&note=#{notes}"
     end
 
     def _create_project_folder(formal_project_title)
@@ -97,34 +95,6 @@ class ProjectAction < Thor
         FileUtils.mkdir_p(source_directory_path)
     end
 
-    def _create_inetloc_file(folder_path, app_name, app_url)
-        file_path = "#{folder_path}#{app_name}.inetloc"
-        file_content = _new_inetloc_xml(app_url)
-        File.write(file_path, file_content.to_xml)
-        file_path
-    end
-
-    def _create_readme_file(folder_path, project_title)
-        file_path = "#{folder_path}readme.md"
-        File.write(file_path, "readme for #{project_title}")
-        file_path
-    end
-
-    def _new_inetloc_xml(app_url)
-        Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-            xml.doc.create_internal_subset(
-                'plist',
-                "-//Apple//DTD PLIST 1.0//EN",
-                "http://www.apple.com/DTDs/PropertyList-1.0.dtd"
-            )
-            xml.plist {
-                xml.dict {
-                    xml.key "URL"
-                    xml.string app_url
-                }
-            }
-        end
-    end
 
     def _sanitize(folder_or_file_name)
         folder_or_file_name.gsub(/[^0-9A-Z]/i, '_')

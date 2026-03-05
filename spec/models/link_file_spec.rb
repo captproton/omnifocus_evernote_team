@@ -27,40 +27,58 @@ RSpec.describe LinkFile do
     end
   end
 
-  describe '#add_interloc_file_to_project_directory' do
+  describe '#add_inetloc_file' do
     let(:tmp_dir) { Dir.mktmpdir }
 
     after { FileUtils.rm_rf(tmp_dir) }
 
     it 'creates an .inetloc file at the expected path' do
-      result_path = link_file.add_interloc_file_to_project_directory(
-        "#{tmp_dir}/", "omnifocus", "omnifocus:///task/abc123"
+      result_path = link_file.add_inetloc_file(
+        tmp_dir, "omnifocus", "omnifocus:///task/abc123"
       )
       expect(File.exist?(result_path)).to be true
       expect(result_path).to end_with("omnifocus.inetloc")
     end
 
     it 'writes valid XML content to the file' do
-      link_file.add_interloc_file_to_project_directory(
-        "#{tmp_dir}/", "omnifocus", "omnifocus:///task/abc123"
+      link_file.add_inetloc_file(
+        tmp_dir, "omnifocus", "omnifocus:///task/abc123"
       )
-      content = File.read("#{tmp_dir}/omnifocus.inetloc")
+      content = File.read(File.join(tmp_dir, "omnifocus.inetloc"))
       expect(content).to include("<key>URL</key>")
       expect(content).to include("omnifocus:///task/abc123")
     end
 
     it 'returns the path to the created file' do
-      result = link_file.add_interloc_file_to_project_directory(
-        "#{tmp_dir}/", "evernote", "evernote:///view/123"
+      result = link_file.add_inetloc_file(
+        tmp_dir, "evernote", "evernote:///view/123"
       )
-      expect(result).to eq("#{tmp_dir}/evernote.inetloc")
+      expect(result).to eq(File.join(tmp_dir, "evernote.inetloc"))
     end
 
     it 'uses the provided app_name as the filename base' do
-      link_file.add_interloc_file_to_project_directory(
-        "#{tmp_dir}/", "obsidian", "obsidian://open?vault=MyVault&file=test"
+      link_file.add_inetloc_file(
+        tmp_dir, "obsidian", "obsidian://open?vault=MyVault&file=test"
       )
-      expect(File.exist?("#{tmp_dir}/obsidian.inetloc")).to be true
+      expect(File.exist?(File.join(tmp_dir, "obsidian.inetloc"))).to be true
+    end
+  end
+
+  describe '#add_readme_file' do
+    let(:tmp_dir) { Dir.mktmpdir }
+
+    after { FileUtils.rm_rf(tmp_dir) }
+
+    it 'creates a readme.md file' do
+      result_path = link_file.add_readme_file(tmp_dir, "My Project")
+      expect(File.exist?(result_path)).to be true
+      expect(result_path).to end_with("readme.md")
+    end
+
+    it 'includes the project title in the content' do
+      link_file.add_readme_file(tmp_dir, "Super Project")
+      content = File.read(File.join(tmp_dir, "readme.md"))
+      expect(content).to eq("readme for Super Project")
     end
   end
 end
