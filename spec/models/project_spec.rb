@@ -65,6 +65,29 @@ RSpec.describe Project do
       result = project._set_base_path
       expect(result).to eq(custom_path)
     end
+
+    it 'adds a trailing slash if PROJECTS_BASE_PATH is missing one' do
+      custom_path = "/tmp/no_slash"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('PROJECTS_BASE_PATH').and_return(custom_path)
+      result = project._set_base_path
+      expect(result).to eq("/tmp/no_slash/")
+    end
+
+    it 'falls back to default if PROJECTS_BASE_PATH is a blank string' do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('PROJECTS_BASE_PATH').and_return("  ")
+      result = project._set_base_path
+      expect(result).to eq("#{ENV['HOME']}/Documents/projects/")
+    end
+
+    it 'expands paths (like ~) if present in PROJECTS_BASE_PATH' do
+      custom_path = "~/custom_projects"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('PROJECTS_BASE_PATH').and_return(custom_path)
+      result = project._set_base_path
+      expect(result).to eq("#{ENV['HOME']}/custom_projects/")
+    end
   end
 
   describe '#_obsidian_vault_path' do

@@ -46,14 +46,13 @@ class Project
     end
 
     def generate_data_from_title(title)
-        data_hash = {}
         formatted_title             = self.generate_formatted_title(title)
         url_encoded_project_title   = self.generate_omnifocus_encoded_project_title(title)
         source_directory_path       = self._generate_source_directory_path(formatted_title)
         evernote_link               = ""
         omnifocus_link              = ""
         file_uri                    = "file://#{source_directory_path}"
-        data_hash =    {title: title, 
+        {title: title, 
                         formatted_title: formatted_title,
                         url_encoded_project_title: url_encoded_project_title,
                         source_directory_path: source_directory_path,
@@ -65,11 +64,11 @@ class Project
 
     def generate_formatted_title(title)
         date_string = Time.new.strftime("%Y-%m-%d")
-        project_title = "#{date_string}||#{title}"        
+        "#{date_string}||#{title}"        
     end
 
     def generate_omnifocus_encoded_project_title(title)
-        url_encoded_project_title = title.gsub(/\s/, '%20')              
+        title.gsub(/\s/, '%20')              
     end
 
     def _generate_source_directory_path(formatted_title)
@@ -78,15 +77,22 @@ class Project
         "#{project_base_path}#{clean_folder_name}"
     end
     def _generate_clean_folder_name(formatted_title)
-        project_base_path = _set_base_path
+        "#{_sanitize(formatted_title)}/"
     end
 
     def _sanitize(formatted_title)
-        clean_folder_name = formatted_title.gsub(/[^0-9A-Z]/i, '_')
+        formatted_title.gsub(/[^0-9A-Z]/i, '_')
     end
 
     def _set_base_path
-        ENV['PROJECTS_BASE_PATH'] || "#{ENV['HOME']}/Documents/projects/"
+        path = ENV['PROJECTS_BASE_PATH'].to_s.strip
+        if path.empty?
+            path = "#{ENV['HOME']}/Documents/projects/"
+        else
+            path = File.expand_path(path)
+        end
+        path += "/" unless path.end_with?("/")
+        path
     end
 
     def _obsidian_vault_path
