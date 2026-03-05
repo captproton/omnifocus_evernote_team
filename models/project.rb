@@ -1,3 +1,4 @@
+require 'uri'
 class Project
     attr_accessor(
                     :title, 
@@ -72,12 +73,7 @@ class Project
     end
 
     def _generate_source_directory_path(formatted_title)
-        clean_folder_name = "#{_sanitize(formatted_title)}/"
-        project_base_path = _set_base_path
-        "#{project_base_path}#{clean_folder_name}"
-    end
-    def _generate_clean_folder_name(formatted_title)
-        "#{_sanitize(formatted_title)}/"
+        "#{_set_base_path}#{_sanitize(formatted_title)}/"
     end
 
     def _sanitize(formatted_title)
@@ -101,6 +97,39 @@ class Project
 
     def _obsidian_vault_name
         ENV['OBSIDIAN_VAULT_NAME']
+    end
+
+    def obsidian_uri
+        vault = URI.encode_www_form_component(_obsidian_vault_name.to_s).gsub('+', '%20')
+        # Ensure we have a formatted title to work with
+        title_to_use = formatted_title.empty? ? generate_formatted_title(@title) : formatted_title
+        file = URI.encode_www_form_component(_sanitize(title_to_use)).gsub('+', '%20')
+        "obsidian://open?vault=#{vault}&file=#{file}"
+    end
+
+    def create_obsidian_note
+        vault_path = _obsidian_vault_path
+        return unless vault_path
+        
+        # Ensure we have a formatted title
+        title_to_use = formatted_title.empty? ? generate_formatted_title(@title) : formatted_title
+        
+        FileUtils.mkdir_p(vault_path)
+        
+        filename = "#{_sanitize(title_to_use)}.md"
+        full_path = File.join(vault_path, filename)
+        
+        content = <<~MARKDOWN
+          # #{title_to_use}
+          
+          Created: #{Time.new.strftime("%Y-%m-%d")}
+          
+          ## Links
+          - [Local Directory](#{file_uri})
+          - [OmniFocus](#{omnifocus_link})
+        MARKDOWN
+        
+        File.write(full_path, content)
     end
 
 end

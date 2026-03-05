@@ -181,4 +181,65 @@ RSpec.describe Project do
       expect(p.omnifocus_link).to eq("")
     end
   end
+
+  describe '#obsidian_uri' do
+    let(:project) { Project.new(title: "My New Project") }
+
+    before do
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return('WorkVault')
+    end
+
+    it 'generates a valid obsidian open URI' do
+      fixed_time = Time.new(2026, 3, 5)
+      allow(Time).to receive(:new).and_return(fixed_time)
+      
+      expected_uri = "obsidian://open?vault=WorkVault&file=2026_03_05__My_New_Project"
+      expect(project.obsidian_uri).to eq(expected_uri)
+    end
+
+    it 'URL encodes vault and file names' do
+      project.title = "Project & Co"
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_NAME').and_return('My Vault')
+      
+      fixed_time = Time.new(2026, 3, 5)
+      allow(Time).to receive(:new).and_return(fixed_time)
+      
+      expect(project.obsidian_uri).to include("vault=My%20Vault")
+      expect(project.obsidian_uri).to include("file=2026_03_05__Project___Co")
+    end
+  end
+
+  describe '#create_obsidian_note' do
+    let(:project) { Project.new(title: "Obsidian Test") }
+    let(:vault_path) { "/tmp/obsidian_vault/" }
+
+    before do
+      allow(ENV).to receive(:[]).with('OBSIDIAN_VAULT_PATH').and_return(vault_path)
+      
+      fixed_time = Time.new(2026, 3, 5)
+      allow(Time).to receive(:new).and_return(fixed_time)
+      
+      allow(FileUtils).to receive(:mkdir_p)
+      allow(File).to receive(:write)
+    end
+
+    it 'creates a markdown file in the correct vault path' do
+      expected_file_path = "/tmp/obsidian_vault/2026_03_05__Obsidian_Test.md"
+      project.create_obsidian_note
+      expect(File).to have_received(:write).with(expected_file_path, anything)
+    end
+
+    it 'includes the project title and date in the note content' do
+      project.create_obsidian_note
+      expect(File).to have_received(:write) do |_path, content|
+        expect(content).to include("# 2026-03-05||Obsidian Test")
+        expect(content).to include("Created: 2026-03-05")
+      end
+    end
+
+    it 'ensures the vault directory exists' do
+      project.create_obsidian_note
+      expect(FileUtils).to have_received(:mkdir_p).with(vault_path)
+    end
+  end
 end
