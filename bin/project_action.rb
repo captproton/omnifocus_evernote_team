@@ -4,7 +4,7 @@ require_relative '../config/environment'
 class ProjectAction < Thor
     include Thor::Actions
     include Rails::Generators::Actions
-  
+
     ## Overall steps
     #   • new_project_title
     #   • initialize_source_directory
@@ -13,7 +13,7 @@ class ProjectAction < Thor
     #   • update YAML entry with evernote uri
     #   • initialize_omnifocus_project with links to:
     #       • project source directory
-    #       • link to evernote note 
+    #       • link to evernote note
     #   • update YAML omnifocus URI
     #   • add_inetloc_files_to_source_directory
 
@@ -29,16 +29,16 @@ class ProjectAction < Thor
         omnifocus_url = _generate_omnifocus_url(project_title, omnifocus_link)
         puts omnifocus_url
     end
-    
+
     desc 'initialize_project_directory', 'creates a project folder based on the formatted title'
     def initialize_project_directory(project_title)
         # create safe project directory
         folder = _create_project_folder(project_title)
     end
-    
+
     desc 'add_inetloc_files_to_project_directory', 'creates project inetloc files based on the formatted title'
-    def add_inetloc_files_to_project_directory(project_title, 
-        omnifocus_url="omnifocus:///task/morning", 
+    def add_inetloc_files_to_project_directory(project_title,
+        omnifocus_url="omnifocus:///task/morning",
         evernote_url="evernote:///view/[userId]/[shardId]/[noteGuid]/[noteGuid]/")
         # get directory path with project title
         folder_name = _sanitize(project_title)
@@ -60,7 +60,7 @@ class ProjectAction < Thor
          _create_inetloc_file(folder_path, "evernote", evernote_url)
          _create_readme_file(folder_path, project_title)
     end
-    
+
     desc 'generate [project_title]', 'USE THIS: Wizard for generating a project in OmniFocus with notes in Evernote and source code in the projects folder.'
     def generate(name)
         # initiate project hash
@@ -84,7 +84,7 @@ class ProjectAction < Thor
         file_path = "#{@project.source_directory_path}/readme.md"
         file_content = "readme for #{@project.formatted_title}"
         File.write(file_path, file_content)
-        say(set_color "…created README in source folder: `#{file_path}`", :green, :on_black, :bold) 
+        say(set_color "…created README in source folder: `#{file_path}`", :green, :on_black, :bold)
 
         # prompt user to create task with an Omnifocus add link
         omnifocus_add_link = _generate_omnifocus_url(@project.formatted_title, @project.evernote_link, @project.file_uri)
@@ -97,7 +97,7 @@ class ProjectAction < Thor
         @project.omnifocus_link = omnifocus_link
 
         # add links to omnifocus project and note to source directory
-        
+
         say(set_color "…adding link project link and notes link file to project source folder", :green, :on_black, :bold)
         omnifocus_link_file = LinkFile.new.add_interloc_file_to_project_directory(@project.source_directory_path, "omnifocus", @project.omnifocus_link)
         evernote_link_file = LinkFile.new.add_interloc_file_to_project_directory(@project.source_directory_path, "evernote", @project.evernote_link)
@@ -119,7 +119,7 @@ class ProjectAction < Thor
     end
 
     def _generate_omnifocus_url(formatted_title, evernote_link, file_uri)
-        notes   = "source: #{file_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')   
+        notes   = "source: #{file_uri}\n\n  notes: #{evernote_link}".gsub(/\s/, '%20')
         url     = "omnifocus:///add?project=#{formatted_title.gsub(/\s/, '%20')}&name=default%20task&note=#{notes}"
     end
 
